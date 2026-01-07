@@ -1,0 +1,145 @@
+job_extraction_task:
+  description: >
+    {location}에서 {level} 수준의 {position} 채용 공고를 찾고 추출한다.
+
+    수행 단계는 다음과 같다:
+    1. Web Search Tool을 사용해 {location}에서 {level} 수준의 {position} 채용 공고를 검색한다.
+    2. 검색 결과에서 채용 공고 목록을 추출한다.
+    3. {location}의 {level} 수준 {position} 채용 공고가 아닌 항목은 필터링한다.
+
+    출력 규칙 (중요):
+    - JobList 스키마에 맞는 JSON 객체를 반환한다.
+    - 필수 문자열 필드에 null을 출력하지 않는다.
+    - job_location, company_name, job_posting_url은 항상 비어 있지 않은 문자열이어야 하며, 
+      누락되었거나 불명확한 경우 "Unknown"으로 설정한다.
+    - job_title, job_summary는 항상 비어 있지 않은 문자열이어야 하며,
+      누락된 경우 문맥을 통해 추론하거나 "Unknown"으로 설정한다.
+  expected_output: >
+    `JobList` 스키마에 맞는 JSON 객체.
+  agent: job_search_agent
+
+job_matching_task:
+  description: >
+    당신은 커리어 매칭 전문가다.
+
+    추출된 채용 공고 목록(JobList)과 사용자의 이력서를 기반으로,
+    각 채용 공고가 다음 항목과 얼마나 잘 부합하는지 평가한다:
+    - 기술 스택
+    - 직무 레벨
+    - 산업군 및 회사 규모 선호
+    - 원격 근무 및 근무 유연성
+    - 계약 형태
+    - 연봉 기대치
+    - 이력서에 포함된 키워드 및 제외 조건
+
+    각 채용 공고마다 1점(부적합)에서 5점(완벽 적합) 사이의 `match_score`를 부여하고,
+    그에 대한 이유를 설명한다.
+
+    각 채용 공고 항목에 `match_score`와 `reason` 필드를 추가한다.
+
+    기존 채용 공고 필드는 모두 유지한다.
+    어떠한 채용 공고도 변경하거나 제거하지 않는다.
+  expected_output: >
+    기존 `Job` 스키마를 따르고 각 채용 공고에 다음 두 필드를 추가한 JSON 객체를 갖는다.
+
+    두 필드:
+    - match_score: 1~5 사이의 정수
+    - reason: 점수에 대한 간단한 설명
+  agent: job_matching_agent
+
+job_selection_task:
+  description: >
+    당신은 채용 선택 전문가다.
+
+    `match_score`와 `reason` 필드를 포함한 채용 공고 목록(RankedJobList)이 주어졌을 때,
+    다음 작업을 수행한다:
+    1. `match_score`와 이유를 분석해 사용자에게 가장 적합한 채용 공고를 판단한다.
+    2. 사용자의 선호, 기술, 목표에 가장 잘 부합하는 단 하나의 채용 공고를 선택한다.
+    3. 이력서와 채용 공고의 정합성을 기반으로 선택 이유를 간결한 `reason` 필드에 작성한다.
+    4. 최종 선택된 채용 공고의 `selected` 필드는 `true`, 나머지 모든 공고의 `selected` 필드는 `false`로 설정한다.
+
+    job_title, company_name 등 기존 채용 공고 필드의 내용은 변경하지 않는다.
+  expected_output: >
+    선택된 채용 공고의 `ChosenJob` 스키마에 맞는 JSON 객체.
+  agent: job_matching_agent
+
+resume_rewriting_task:
+  description: >
+    당신은 이력서 최적화 전문가다.
+
+    포함된 지식 소스로 제공되는 사용자의 실제 이력서와 선택된 채용 공고(ChosenJob)가 주어졌을 때,
+    사실을 조작하거나 과장하지 않고 해당 채용 공고에 대한 적합성을 강조하도록 기존 이력서를 재작성한다.
+
+    다음 사항에 집중한다:
+    - 관련 기술, 프로젝트, 성과를 재정렬하고 재표현하여 강조한다.
+    - 직무 요구사항과 키워드가 반영되도록 요약과 경력 bullet을 수정한다.
+    - 채용 공고의 톤, 기술 중심성, 용어를 맞춘다.
+    - 사용자의 원본 이력서에 실제로 존재하는 경험만 유지한다.
+
+    관련성이 낮은 내용은 제거하거나 가독성을 위해 직함을 약간 수정할 수 있으나,
+    허위 회사, 기술, 날짜, 역할을 추가해서는 안 된다.
+  expected_output: >
+    선택된 채용 공고에 맞게 최적화된 사용자의 실제 이력서를 Markdown 형식으로 작성한다.
+    이력서는 반드시 사실에 기반해야 한다.
+  agent: resume_optimization_agent
+  output_file: output/rewritten_resume.md
+  create_directory: true
+  markdown: true
+
+company_research_task:
+  description: >
+    당신은 기업 리서치 및 면접 준비 전문가다.
+
+    선택된 채용 공고(ChosenJob)가 주어졌을 때, 공개 웹 리소스를 활용해 채용 기업을 조사한다.
+    목표는 다음과 같다:
+    1. 기업의 규모, 산업, 미션, 가치, 최근 소식을 파악한다.
+    2. 채용 공고를 분석해 팀 구조와 제품 맥락을 추론한다.
+    3. 지원자가 마주할 가능성이 높은 면접 주제와 질문을 제안한다.
+    4. 지원자가 면접에서 질문할 수 있는 통찰력 있는 질문 목록을 제공한다.
+
+    기업 웹사이트, 보도자료, 블로그, 소셜 미디어, 리뷰를 활용해 정보를 수집한다.
+  expected_output: >
+    다음 섹션을 포함한 Markdown 파일:
+    - ## Company Overview
+    - ## Mission and Values
+    - ## Recent News or Changes
+    - ## Role Context and Product Involvement
+    - ## Likely Interview Topics
+    - ## Suggested Questions to Ask
+  agent: company_research_agent
+  markdown: true
+  output_file: output/company_research.md
+
+interview_prep_task:
+  description: >
+    당신은 면접 준비 코치다.
+
+    다음 정보를 종합한다:
+    1. 선택된 채용 공고(ChosenJob)
+    2. 맞춤화된 이력서(RewrittenResume)
+    3. 기업 리서치 요약(CompanyResearch)
+
+    이를 바탕으로 다음 내용을 포함한 상세한 면접 준비 문서를 작성한다:
+    - 직무 요약과 해당 직무가 지원자에게 적합한 이유
+    - 가장 관련성 높은 내용을 중심으로 한 이력서 요약
+    - 기업, 제품, 가치에 대한 간결한 요약
+    - 직무와 기업을 기반으로 예측한 면접 질문
+    - 지원자가 면접관에게 물어볼 질문
+    - 면접 시 톤, 집중 포인트, 주의해야 할 리스크에 대한 조언
+
+    문서는 명확하고 정돈된 형태로 작성하며, 지원자가 면접에서 전략적 우위를 가질 수 있도록 구성한다.
+
+    문서는 너무 짧지 않게 작성하며, 충분히 포괄적이도록 필요한 만큼 상세히 작성한다.
+  expected_output: >
+    다음 섹션을 포함한
+    "Interview Prep: $CompanyName – $JobTitle" 제목의 Markdown 문서:
+    - ## Job Overview
+    - ## Why This Job Is a Fit
+    - ## Resume Highlights for This Role
+    - ## Company Summary
+    - ## Predicted Interview Questions
+    - ## Questions to Ask Them
+    - ## Concepts To Know/Review
+    - ## Strategic Advice
+  agent: interview_prep_agent
+  output_file: output/interview_prep.md
