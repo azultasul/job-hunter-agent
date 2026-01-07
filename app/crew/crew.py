@@ -5,11 +5,11 @@ dotenv.load_dotenv()
 from crewai import Crew, Agent, Task
 from crewai.project import CrewBase, task, agent, crew
 from crewai.knowledge.source.text_file_knowledge_source import TextFileKnowledgeSource
-from models import JobList, RankedJobList, ChosenJob
+from schemas import JobList, RankedJobList, ChosenJob
 from tools import web_search_tool
 
 resume_knowledge = TextFileKnowledgeSource(
-  file_paths=["resume.txt"]
+  file_paths=["/resume.txt"]
 )
 
 @CrewBase
