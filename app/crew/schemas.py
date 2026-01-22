@@ -1,6 +1,15 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from datetime import date
+
+
+class CrewResult(BaseModel):
+    jobs: Optional[List["Job"]] = None
+    ranked_jobs: Optional[List["RankedJob"]] = None
+    chosen_job: Optional["ChosenJob"] = None
+    rewritten_resume: Optional[str] = None
+    company_research: Optional[str] = None
+    interview_prep: Optional[str] = None
 
 
 class Job(BaseModel):
@@ -50,3 +59,7 @@ class ChosenJob(BaseModel):
     job: Job
     selected: bool
     reason: str
+
+
+# Rebuild models for forward references
+CrewResult.model_rebuild()
