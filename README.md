@@ -1,70 +1,142 @@
-## 1. **Project Overview**
+# Job Hunter Agent
 
-    - 한 문장 설명(무엇을/누구를 위해/어떤 문제 해결)
-    - 핵심 기능 3~5개 bullets
-    - 데모/스크린샷/간단 시퀀스(선택)
+AI 기반 멀티 에이전트 취업 지원 시스템. 채용공고 검색부터 이력서 최적화, 면접 준비까지 자동화합니다.
 
-## 2. **Tech Stack**
+## 핵심 기능
 
-    - 런타임/프레임워크(FastAPI 등), LLM provider(OpenAI 등), 벡터DB/DB, 큐/캐시, 관측도구
+- **채용공고 검색** - 사람인, 잡코리아, LinkedIn 등 지정한 사이트에서 검색
+- **이력서 매칭** - 이력서와 채용공고 적합도 분석 (1-5점)
+- **이력서 최적화** - 선택한 채용공고에 맞춰 이력서 재작성
+- **기업 리서치** - 지원 기업 분석 및 인사이트 제공
+- **면접 준비** - 예상 질문, 답변 전략, 질문 리스트 생성
 
-## 3. **Architecture**
+## Tech Stack
 
-    - 요청 흐름(클라이언트 → API → LLM/툴/DB)
-    - 주요 디렉토리 구조(예: app/crew, main.py, .yaml)
-    - (있다면) 멀티에이전트/워크플로우 개요
+| 구분        | 기술             |
+| ----------- | ---------------- |
+| Runtime     | Python 3.13+     |
+| Framework   | FastAPI, uvicorn |
+| AI Agent    | CrewAI           |
+| LLM         | OpenAI (o4-mini) |
+| Web Search  | Firecrawl        |
+| PDF Parsing | pypdf            |
 
-## 4. **Quickstart**
+## Architecture
 
-    - 요구사항(Python 버전, Poetry/uv 등)
-    - 설치/실행 명령
-    - 가장 작은 성공 기준: “헬스체크”와 “샘플 요청” 1개(curl)
+### 멀티 에이전트 파이프라인
 
-## 5. **Configuration**
+```
+[Tab 1] 채용공고 검색 (job_search_agent)
+           ↓
+[Tab 2] 매칭 & 선택 (job_matching_agent)
+           ↓
+    ┌──────┴──────┐
+    ↓             ↓
+[Tab 3]       [Tab 4]
+이력서 최적화   기업 리서치
+    ↓             ↓
+    └──────┬──────┘
+           ↓
+[Tab 5] 면접 준비 (interview_prep_agent)
+```
 
-    - 필수/선택 환경변수 표(OPENAI_API_KEY, 모델명, 로그 레벨 등)
-    - 설정 파일(tasks.yaml, agents.yaml) 역할과 수정 방법
-    - 비밀 관리 원칙(.env, vault, 로테이션)
+### 디렉토리 구조
 
-## 6. **API Reference**
+```
+app/
+├── main.py                 # FastAPI 앱 초기화
+├── routers/
+│   ├── crew.py             # 일괄 실행 API (deprecated)
+│   └── steps.py            # 단계별 실행 API (권장)
+├── crew/
+│   ├── config/
+│   │   ├── agents.yaml     # 에이전트 정의
+│   │   └── tasks.yaml      # 태스크 정의
+│   ├── crew.py             # JobHunterCrew 클래스
+│   ├── steps.py            # 단계별 Crew 클래스
+│   ├── schemas.py          # Pydantic 모델
+│   └── tools.py            # web_search_tool
+└── utils/
+    └── pdf.py              # PDF 텍스트 추출
+```
 
-    - Base URL / Auth 방식
-    - 주요 엔드포인트 요약 표(메서드, 경로, 설명)
-    - 대표 요청/응답 예시 1~2개
-    - 에러 코드/에러 응답 스키마
-    - 레이트 리밋/타임아웃/리트라이 정책
+## Quickstart
 
-## 7. **Development**
+### 요구사항
 
-    - 로컬 개발 팁(핫리로드, 프리커밋/린트, 포매터)
-    - 테스트 실행 방법 + 테스트 범위(유닛/통합/계약)
-    - (LLM이면 특히) 프롬프트/워크플로우 변경 시 검증 방법
+- Python 3.13+
+- [uv](https://github.com/astral-sh/uv) 패키지 매니저
 
-## 8. **Observability**
+### 설치 및 실행
 
-    - 로깅 포맷(구조화 로그 권장), 트레이싱, 메트릭
-    - LLM 특화 지표: 토큰 사용량, 비용, 지연, 실패율, fallback 비율
+```bash
+# 의존성 설치
+uv sync
 
-## 9. **Security & Safety**
+# 환경변수 설정
+cp .env.example .env
+# .env 파일에 API 키 입력
 
-    - 입력 검증, PII 처리, 프롬프트 인젝션 대응(툴 화이트리스트 등)
-    - 권한/키 보호, 감사로그
-    - 모델/툴 사용 제한(allowlist, sandbox)
+# 서버 실행
+uv run uvicorn app.main:app --reload
+```
 
-## 10. **Deployment**
+### 샘플 요청
 
-    - Docker/Compose 또는 배포 방식(K8s 등)
-    - 환경별 설정(dev/stage/prod)
-    - 스케일링/워커/큐(있다면)
+```bash
+# 채용공고 검색
+curl -X POST http://localhost:8000/crew/step/search \
+  -F "level=mid level" \
+  -F "position=frontend developer" \
+  -F "location=korea" \
+  -F 'job_sites=["saramin.co.kr"]'
+```
 
-## 11. **Roadmap**
+## Configuration
 
-    - 가까운 계획(3~6개), 알려진 이슈
+### 환경변수
 
-## 12. **Contributing**
+| 변수                | 필수 | 설명                         |
+| ------------------- | ---- | ---------------------------- |
+| `OPENAI_API_KEY`    | Yes  | OpenAI API 키                |
+| `FIRECRAWL_API_KEY` | Yes  | Firecrawl API 키 (웹 검색용) |
 
-    - 브랜치/PR 규칙, 코드 스타일, 이슈 템플릿(선택)
+### 설정 파일
 
-## 13. **License**
+- `app/crew/config/agents.yaml` - 에이전트 역할, 목표, 백스토리, LLM 모델 설정
+- `app/crew/config/tasks.yaml` - 태스크 설명 및 출력 형식 정의
 
-    - 라이선스 + Third-party notices(선택)
+## API Reference
+
+Base URL: `http://localhost:8000`
+
+### 단계별 API (권장)
+
+| Method | Endpoint               | 설명          |
+| ------ | ---------------------- | ------------- |
+| POST   | `/crew/step/search`    | 채용공고 검색 |
+| POST   | `/crew/step/match`     | 매칭 & 선택   |
+| POST   | `/crew/step/resume`    | 이력서 최적화 |
+| POST   | `/crew/step/research`  | 기업 리서치   |
+| POST   | `/crew/step/interview` | 면접 준비     |
+
+### 지원 채용 사이트
+
+| 사이트   | 도메인           |
+| -------- | ---------------- |
+| 사람인   | `saramin.co.kr`  |
+| 잡코리아 | `jobkorea.co.kr` |
+| LinkedIn | `linkedin.com`   |
+| Wanted   | `wanted.co.kr`   |
+
+> 상세 API 문서: [docs/API.md](docs/API.md)
+
+## Development
+
+```bash
+# 개발 서버 실행 (핫리로드)
+uv run uvicorn app.main:app --reload
+
+# API 문서 확인
+open http://localhost:8000/docs
+```
