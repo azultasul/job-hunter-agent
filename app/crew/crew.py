@@ -11,7 +11,7 @@ from app.crew.tools import create_web_search_tool
 
 
 @CrewBase
-class JobHunterCrew:
+class JobSearchCrew:
 
     def __init__(self, resume_text: str, job_sites: Optional[list[str]] = None):
         self.resume_knowledge = StringKnowledgeSource(content=resume_text)

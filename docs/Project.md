@@ -1,6 +1,6 @@
-# Job-Hunter-Agent Web Service
+# Job-Search-Agent Web Service
 
-본 문서는 **Job-Hunter-Agent**를 기반으로 한 웹 서비스의 약식 PRD(Product Requirements Document)입니다. 서비스의 목적, 사용자 흐름, 주요 기능, 기술 스택, 시스템 구성 등을 간략하지만 구현 관점에서 명확히 정리하는 것을 목표로 합니다.
+본 문서는 **Job-Search-Agent**를 기반으로 한 웹 서비스의 약식 PRD(Product Requirements Document)입니다. 서비스의 목적, 사용자 흐름, 주요 기능, 기술 스택, 시스템 구성 등을 간략하지만 구현 관점에서 명확히 정리하는 것을 목표로 합니다.
 
 ---
 
@@ -8,9 +8,9 @@
 
 ### 1.1 목적
 
-Job-Hunter-Agent Web Service는 구직자가 **채용 공고 탐색 → 직무 매칭 → 이력서 최적화 → 기업 조사 및 면접 준비 → 결과물 요약 및 다운로드**까지의 과정을 하나의 흐름으로 수행할 수 있도록 돕는 AI 기반 취업 지원 서비스입니다.
+Job-Search-Agent Web Service는 구직자가 **채용 공고 탐색 → 직무 매칭 → 이력서 최적화 → 기업 조사 및 면접 준비 → 결과물 요약 및 다운로드**까지의 과정을 하나의 흐름으로 수행할 수 있도록 돕는 AI 기반 취업 지원 서비스입니다.
 
-기존의 Job-Hunter-Agent를 백엔드 에이전트 레벨에서 확장하여, 실제 사용자 인터랙션이 가능한 웹 서비스 형태로 제공합니다.
+기존의 Job-Search-Agent를 백엔드 에이전트 레벨에서 확장하여, 실제 사용자 인터랙션이 가능한 웹 서비스 형태로 제공합니다.
 
 ### 1.2 타겟 사용자
 
@@ -32,7 +32,7 @@ Job-Hunter-Agent Web Service는 구직자가 **채용 공고 탐색 → 직무 �
 2. **두 번째 화면 (결과 및 작업 단계)**
 
    - 탭 기반 UI
-   - 각 탭은 Job-Hunter-Agent의 주요 단계에 대응
+   - 각 탭은 Job-Search-Agent의 주요 단계에 대응
 
 ---
 
@@ -262,4 +262,4 @@ Job-Hunter-Agent Web Service는 구직자가 **채용 공고 탐색 → 직무 �
 
 - 본 문서는 **기획 공유 + 개발 방향 정렬**을 위한 약식 PRD
 - 상세 UI/UX 및 API 스펙은 후속 문서에서 정의
-- Job-Hunter-Agent의 에이전트 구조를 웹 서비스로 확장하기 위한 기준 문서 역할
+- Job-Search-Agent의 에이전트 구조를 웹 서비스로 확장하기 위한 기준 문서 역할

@@ -1,4 +1,4 @@
-# Job Hunter Agent
+# Job Search Agent
 
 AI 기반 멀티 에이전트 취업 지원 시스템. 채용공고 검색부터 이력서 최적화, 면접 준비까지 자동화합니다.
 
@@ -52,7 +52,7 @@ app/
 │   ├── config/
 │   │   ├── agents.yaml     # 에이전트 정의
 │   │   └── tasks.yaml      # 태스크 정의
-│   ├── crew.py             # JobHunterCrew 클래스
+│   ├── crew.py             # JobSearchCrew 클래스
 │   ├── steps.py            # 단계별 Crew 클래스
 │   ├── schemas.py          # Pydantic 모델
 │   └── tools.py            # web_search_tool

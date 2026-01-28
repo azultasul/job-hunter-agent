@@ -4,7 +4,7 @@ from typing import Optional
 import uuid
 import json
 
-from app.crew.crew import JobHunterCrew
+from app.crew.crew import JobSearchCrew
 from app.crew.schemas import (
     CrewResult,
     JobList,
@@ -71,7 +71,7 @@ async def kickoff_crew_sync(
     sites_list = _parse_job_sites(job_sites)
 
     try:
-        crew_instance = JobHunterCrew(
+        crew_instance = JobSearchCrew(
             resume_text=resume_content,
             job_sites=sites_list,
         ).crew()
@@ -169,7 +169,7 @@ def run_crew_task(
     Background task to run the crew.
     """
     try:
-        crew_instance = JobHunterCrew(
+        crew_instance = JobSearchCrew(
             resume_text=resume_content,
             job_sites=job_sites,
         ).crew()

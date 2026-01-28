@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Job Hunter Agent is a multi-agent AI system built with CrewAI and FastAPI that automates job searching, matching, resume optimization, and interview preparation. It uses a pipeline of specialized agents to process job searches end-to-end.
+Job Search Agent is a multi-agent AI system built with CrewAI and FastAPI that automates job searching, matching, resume optimization, and interview preparation. It uses a pipeline of specialized agents to process job searches end-to-end.
 
 ## Commands
 
@@ -29,7 +29,7 @@ app/
 │   ├── config/
 │   │   ├── agents.yaml  # 에이전트 정의
 │   │   └── tasks.yaml   # 태스크 정의
-│   ├── crew.py          # JobHunterCrew 클래스
+│   ├── crew.py          # JobSearchCrew 클래스
 │   ├── schemas.py       # Pydantic 모델
 │   └── tools.py         # CrewAI 툴 (web_search_tool)
 └── utils/
